@@ -10,11 +10,11 @@ jobs:
       - name: Install Postman CLI
         run: |
           curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
-      - name: Login to Postman CLI  
-        run: 
+      - name: Login to Postman CLI
         part1="PMAK-66741d42074366000122"
         part2="b1ed-5633b37e933508"
-        part3="89998206fdeed0298ef5"
+        part3="89998206fdeed0298ef5"  
+        run:  
         postman login --with-api-key "$part1$part2$part3"
       - name: Run API tests
         run: |
