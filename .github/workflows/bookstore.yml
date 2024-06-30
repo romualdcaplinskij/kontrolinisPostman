@@ -1,23 +1,31 @@
 name: Automated API tests using Postman CLI
 
-on: 
-  push:
-    branches:
-      - main
+on: push
 
 jobs:
   automated-api-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Postman CLI
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Install Newman
         run: |
-          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
-      - name: Login to Postman CLI
+          npm install -g newman
+      - name: Fetch Postman collection
         run: |
           part1="PMAK-66741d42074366000122"
           part2="b1ed-69542ade8bed106d736758f4f62f6b82b4"
-          postman login --with-api-key "$part1$part2"
-      - name: Run API tests
+          curl -X GET "https://api.getpostman.com/collections/36312693-dfb8150e-5a9e-4ff2-97ee-a0695f71641f" \
+            -H "X-Api-Key: $part1$part2" > collection.json
+      - name: Fetch Postman environment
         run: |
-          postman collection run "36312693-dfb8150e-5a9e-4ff2-97ee-a0695f71641f" -e "36312693-8525c593-69d9-4dad-81b0-0386cb7d2156"
+          part1="PMAK-66741d42074366000122"
+          part2="b1ed-69542ade8bed106d736758f4f62f6b82b4"
+          curl -X GET "https://api.getpostman.com/environments/36312693-8525c593-69d9-4dad-81b0-0386cb7d2156" \
+            -H "X-Api-Key: $part1$part2" > environment.json 
+      - name: Run API test
+        run: |
+          newman run collection.json -e environment.json
